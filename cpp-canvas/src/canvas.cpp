@@ -32,17 +32,12 @@ void Canvas::restore()
 
 void Canvas::drawRect(int x, int y, int w, int h)
 {
-  vec2 bottomLeft = canvasToNdc(ivec2(x, y));
-  vec2 dim = canvasToNdc(ivec2(w, h));
-  vec2 upOffset(0, dim.y);
-  vec2 rightOffset(dim.x, 0);
-
   glBegin(GL_TRIANGLE_STRIP);
 
-  vertex(bottomLeft);
-  vertex(bottomLeft + rightOffset);
-  vertex(bottomLeft + upOffset);
-  vertex(bottomLeft + dim);
+  vertex(canvasToNdc(ivec2(x, y)));
+  vertex(canvasToNdc(ivec2(x, y + h)));
+  vertex(canvasToNdc(ivec2(x + w, y)));
+  vertex(canvasToNdc(ivec2(x + w, y + h)));
 
   glEnd();
 }
