@@ -30,7 +30,7 @@ void Canvas::restore()
   m_stackSize--;
 }
 
-void Canvas::drawRect(int x, int y, int w, int h)
+void Canvas::fillRect(int x, int y, int w, int h)
 {
   glBegin(GL_TRIANGLE_STRIP);
 

@@ -18,7 +18,7 @@ public:
   void rotate(float angle);
   void translate(float x, float y);
 
-  void drawRect(int x, int y, int w, int h);
+  void fillRect(int x, int y, int w, int h);
 
   vec2 canvasToNdc(ivec2 canvas) const;
   ivec2 ndcToCanvas(vec2 ndc) const;
