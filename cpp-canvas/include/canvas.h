@@ -1,55 +1,69 @@
 #pragma once
 
-#include "app.h"
 #include "export.h"
+#include "util.h"
 
 #include <glm/glm.hpp>
+#include <stack>
+#include <string>
 
 using namespace glm;
 
-class Canvas
+class Canvas;
+
+class CPP_CANVAS_API Context2D
+{
+public:
+  Context2D(Canvas& canvas);
+
+  void save();
+  void restore();
+  void rotate(float angle);
+  void translate(int x, int y);
+
+  void fillRect(int x, int y, int w, int h);
+  void clearRect(int x, int y, int w, int h);
+
+private:
+  void setFillStyle(const FillStyle& style);
+
+public:
+  Setter<FillStyle, Context2D, &setFillStyle> fillStyle;
+
+private:
+  template <typename T> T toDegrees(const T& t) { return t * static_cast<T>(3.141592653589793238) / static_cast<T>(180.0); }
+  void vertex(vec2 v);
+  void color(vec4 c);
+  void translate(vec2 off);
+  void applyStyle();
+
+  mat4& transform();
+  const mat4& transform() const;
+
+private:
+  FillStyle m_drawStyle;
+  Canvas& m_canvas;
+  std::stack<mat4> m_transformStack;
+};
+
+class CPP_CANVAS_API Canvas
 {
 public:
   Canvas();
 
-  void reset();
-  void save();
-  void restore();
-  void rotate(float angle);
-  void translate(float x, float y);
+  Context2D& getContext2D();
+  const Context2D& getContext2D() const;
 
-  void fillRect(int x, int y, int w, int h);
-
+  vec2 scaleCanvasToNdc(ivec2 canvas) const;
+  ivec2 scaleNdcToCanas(vec2 ndc) const;
   vec2 canvasToNdc(ivec2 canvas) const;
   ivec2 ndcToCanvas(vec2 ndc) const;
 
   void onResize(ivec2 dimensions);
 
-private:
-  void vertex(vec2 v);
+  vec4 backgroundColor;
 
+private:
+  Context2D m_context;
   ivec2 m_dimensions;
-  size_t m_stackSize;
-};
-
-class DrawListener
-{
-public:
-  virtual void onDraw(Canvas& canvas) = 0;
-};
-
-class CanvasApp: public EventListener
-{
-public:
-  CanvasApp();
-
-  void setDrawListener(DrawListener& l);
-  void removeDrawListener();
-  virtual void onDraw() override;
-  int run();
-
-private:
-  Canvas m_canvas;
-  DrawListener* m_drawListener;
-  Window m_window;
 };

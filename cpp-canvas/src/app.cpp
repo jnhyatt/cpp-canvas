@@ -1,13 +1,14 @@
 #include "app.h"
 
 #include <glm/glm.hpp>
+#include <sstream>
 
-Window::Window(const std::string& title) : m_hDeviceContext(NULL), m_hRenderingContext(NULL), m_hInstance(GetModuleHandle(NULL)), m_hWindow(NULL), m_className("joshroxx")
+App::App() : m_hDeviceContext(NULL), m_hRenderingContext(NULL), m_hInstance(GetModuleHandle(NULL)), m_hWindow(NULL), m_className("canvas-app"), m_running(false)
 {
   WNDCLASS wc;
 
   wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-  wc.lpfnWndProc = Window::eventCallback;
+  wc.lpfnWndProc = App::eventCallback;
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
   wc.hInstance = m_hInstance;
@@ -21,7 +22,7 @@ Window::Window(const std::string& title) : m_hDeviceContext(NULL), m_hRenderingC
 
   m_hWindow = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW,
     m_className.c_str(),
-    title.c_str(),
+    "Canvas",
     WS_CLIPSIBLINGS |
     WS_CLIPCHILDREN |
     WS_OVERLAPPEDWINDOW,
@@ -61,19 +62,59 @@ Window::Window(const std::string& title) : m_hDeviceContext(NULL), m_hRenderingC
 
   m_hRenderingContext = wglCreateContext(m_hDeviceContext);
   wglMakeCurrent(m_hDeviceContext, m_hRenderingContext);
-}
 
-Window::~Window()
-{
-  // TODO: release rc, dc, window in that order
-}
-
-void Window::show() const
-{
   ShowWindow(m_hWindow, SW_SHOWDEFAULT);
 }
 
-LRESULT CALLBACK Window::eventCallback(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam)
+App::~App()
+{
+
+}
+
+void App::setCanvasSize(const size_t width, const size_t height)
+{
+  SetWindowPos(m_hWindow, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER);
+  m_canvas.onResize(ivec2(width, height));
+}
+
+void App::setBackgroundColor(const std::string& color)
+{
+  m_canvas.backgroundColor = parseHexColor(color);
+}
+
+void App::requestAnimationFrame(std::function<void()> handler)
+{
+  m_animationHandler = handler;
+  if (!m_running)
+  {
+    m_running = true;
+    while (m_running) {
+      MSG msg;
+      while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+      {
+        if (msg.message == WM_QUIT)
+        {
+          m_running = false;
+        }
+        else
+        {
+          TranslateMessage(&msg);
+          DispatchMessage(&msg);
+        }
+      }
+      if (m_running) {
+        handler = m_animationHandler;
+        m_animationHandler = std::function<void()>();
+        if (handler) {
+          handler();
+        }
+        SwapBuffers(m_hDeviceContext);
+      }
+    }
+  }
+}
+
+LRESULT CALLBACK App::eventCallback(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch (message)
   {
@@ -85,35 +126,7 @@ LRESULT CALLBACK Window::eventCallback(HWND hWindow, UINT message, WPARAM wParam
   return DefWindowProc(hWindow, message, wParam, lParam);
 }
 
-void Window::addEventListener(EventListener& l)
+Canvas& App::canvas()
 {
-  m_eventListeners.push_back(&l);
-}
-
-void Window::startEventLoop()
-{
-  bool done = false;
-  while (!done)
-  {
-    MSG msg;
-    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-    {
-      if (msg.message == WM_QUIT)
-      {
-        done = true;
-      }
-      else
-      {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-      }
-    }
-
-    for (EventListener* l : m_eventListeners)
-    {
-      l->onDraw();
-    }
-
-    SwapBuffers(m_hDeviceContext);
-  }
+  return m_canvas;
 }

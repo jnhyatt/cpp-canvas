@@ -1,42 +1,38 @@
 #pragma once
 
+#include "canvas.h"
 #include "export.h"
 
 #include <Windows.h>
 
 #include <glm/glm.hpp>
+#include <functional>
 #include <string>
 #include <vector>
 
-class EventListener
+class CPP_CANVAS_API App
 {
 public:
-  virtual void onDraw() {}
-  virtual void onResize(size_t width, size_t height) {}
-  virtual void onKeyPress() {}
-  virtual void onMouseMove(int x, int y) {}
-  virtual void onMouseClick(int x, int y, int button) {}
-};
+  App();
+  ~App();
 
-class Window
-{
-public:
-  Window(const std::string& title);
-  ~Window();
-
-  void addEventListener(EventListener& l);
-  void setDimensions(const unsigned int width, const unsigned int height) const;
-  void setPosition(const int x, const int y) const;
-  void show() const;
-  void startEventLoop();
+  void setCanvasSize(const size_t width, const size_t height);
+  void setBackgroundColor(const std::string& color);
+  void requestAnimationFrame(std::function<void()> func);
 
   static LRESULT CALLBACK eventCallback(HWND hWindow, UINT message, WPARAM wParam, LPARAM lParam);
 
+  Canvas& canvas();
+  const Canvas& canvas() const;
+
 private:
+  Canvas m_canvas;
+
   HDC m_hDeviceContext;
   HGLRC m_hRenderingContext;
   HINSTANCE m_hInstance;
   HWND m_hWindow;
   const std::string m_className;
-  std::vector<EventListener*> m_eventListeners;
+  std::function<void()> m_animationHandler;
+  bool m_running;
 };

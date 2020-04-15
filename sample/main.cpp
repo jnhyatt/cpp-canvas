@@ -1,27 +1,30 @@
+#include "app.h"
 #include "canvas.h"
 
-class JoshApp: public DrawListener
+App app;
+
+float angle = 0.0f;
+
+void draw()
 {
-public:
-  JoshApp()
-  {
-    CanvasApp app;
-    app.setDrawListener(*this);
-    app.run();
-  }
+  auto ctx = app.canvas().getContext2D();
+  angle += 0.01f;
+  ctx.clearRect(0, 0, 400, 400);
+  ctx.save();
+  ctx.translate(200, 200);
+  ctx.rotate(angle);
+  ctx.fillStyle = "#f33";
+  ctx.fillRect(0, 0, 100, 100);
+  ctx.restore();
 
-  virtual void onDraw(Canvas& canvas) override
-  {
-    canvas.fillRect(320, 240, 100, 100);
-  }
+  app.requestAnimationFrame(draw);
+}
 
-private:
-  float offset;
-};
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR commandLine, int showStyle)
+int main(int argc, char** argv)
 {
-  JoshApp app;
+  app.setCanvasSize(400, 400);
+  app.setBackgroundColor("#333");
+  app.requestAnimationFrame(draw);
 
   return 0;
 }
