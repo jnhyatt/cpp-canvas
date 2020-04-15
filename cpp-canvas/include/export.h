@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma comment(lib, "opengl32.lib")
-#pragma warning(disable: 4251)
+#pragma warning(disable : 4251)
 
 #ifdef CPP_CANVAS_EXPORT
 #define CPP_CANVAS_API __declspec(dllexport)
