@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\app.h" />
     <ClInclude Include="include\canvas.h" />
+    <ClInclude Include="include\color.h" />
     <ClInclude Include="include\export.h" />
     <ClInclude Include="include\field.h" />
     <ClInclude Include="include\style.h" />
@@ -28,6 +29,7 @@
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\canvas.cpp" />
+    <ClCompile Include="src\color.cpp" />
     <ClCompile Include="src\style.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

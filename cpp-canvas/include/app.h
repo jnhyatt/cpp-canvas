@@ -23,7 +23,6 @@ public:
                                           WPARAM wParam, LPARAM lParam);
 
     Canvas& canvas();
-    const Canvas& canvas() const;
 
 private:
     Canvas m_canvas;

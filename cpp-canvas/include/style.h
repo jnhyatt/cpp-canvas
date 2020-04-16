@@ -1,18 +1,46 @@
 #pragma once
 
+#include "color.h"
 #include "export.h"
 
 #include <glm/glm.hpp>
+#include <map>
 #include <string>
+#include <vector>
 
 using namespace glm;
 
-vec4 parseHexColor(const std::string& color);
+template <typename T>
+T lerp(const T& left, const T& right, const float factor) {
+    const T diff = right - left;
+    return left + (factor * diff);
+}
 
-class CPP_CANVAS_API DrawStyle {
+class CPP_CANVAS_API Gradient {
 public:
-    DrawStyle(const char* cStr);
-    DrawStyle(const std::string& str);
+    Gradient();
+    Gradient(vec2 origin, vec2 direction);
+    void addColorStop(float position, Color color);
+    Color evaluate(float position);
+    Color evaluate(vec2 position);
+
+private:
+    vec2 m_origin;
+    vec2 m_direction;
+    std::map<float, Color> m_stops;
+};
+
+enum class LineCap {
+    Butt,
+    Round,
+    Square,
+};
+
+class CPP_CANVAS_API FillStyle {
+public:
+    FillStyle();
+    FillStyle(const char* cStr);
+    FillStyle(const std::string& str);
 
     enum class Type {
         Color,
@@ -20,6 +48,10 @@ public:
         Pattern,
     };
 
-    vec4 color;
     Type type;
+    Color color;
+    Gradient gradient;
+    // Pattern pattern;
 };
+
+class CPP_CANVAS_API StrokeStyle {};

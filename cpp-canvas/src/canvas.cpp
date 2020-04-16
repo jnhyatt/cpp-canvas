@@ -6,8 +6,7 @@
 #include <gl/GL.h>
 
 Context2D::Context2D(Canvas& canvas)
-    : m_canvas(canvas), fillStyle(*this), strokeStyle(*this),
-      m_drawStyle("#000"), m_strokeStyle("#000") {
+    : m_canvas(canvas), fillStyle(*this), strokeStyle(*this) {
     m_transformStack.emplace(1.0f);
 }
 
@@ -33,6 +32,10 @@ void Context2D::translate(float x, float y) {
 
 void Context2D::fillRect(float x, float y, float w, float h) {
     applyStyle();
+    // draw this to stencil buffer
+    drawToStencil();
+
+    // draw the rect
     glBegin(GL_TRIANGLE_STRIP);
 
     glVertex2f(x, y);
@@ -41,10 +44,24 @@ void Context2D::fillRect(float x, float y, float w, float h) {
     glVertex2f(x + w, y + h);
 
     glEnd();
+
+    // then fill entire space with color/gradient/pattern
+    drawToColor();
+    switch (m_fillStyle.type) {
+    case FillStyle::Type::Color:
+        drawFill(m_fillStyle.color);
+        break;
+    case FillStyle::Type::Gradient:
+        drawGradient(m_fillStyle.gradient);
+        break;
+    case FillStyle::Type::Pattern:
+        // drawPattern(m_drawStyle.pattern);
+        break;
+    }
 }
 
 void Context2D::clearRect(float x, float y, float w, float h) {
-    color(m_canvas.backgroundColor);
+    setColor(m_canvas.backgroundColor);
     glBegin(GL_TRIANGLE_STRIP);
 
     glVertex2f(x, y);
@@ -55,23 +72,49 @@ void Context2D::clearRect(float x, float y, float w, float h) {
     glEnd();
 }
 
-void Context2D::setFillStyle(const DrawStyle& style) { m_drawStyle = style; }
+void Context2D::setFillStyle(const FillStyle& style) { m_fillStyle = style; }
 
-void Context2D::setStrokeStyle(const DrawStyle& style) {
+void Context2D::setStrokeStyle(const StrokeStyle& style) {
     m_strokeStyle = style;
 }
 
 void Context2D::vertex(vec2 v) { glVertex2f(v.x, v.y); }
 
-void Context2D::color(vec4 c) { glColor4f(c.r, c.g, c.b, c.a); }
+void Context2D::setColor(Color c) {
+    vec4 rgba = c.asVec4();
+    glColor4f(rgba.r, rgba.g, rgba.b, rgba.a);
+}
 
 void Context2D::applyStyle() {
-    switch (m_drawStyle.type) {
-    case DrawStyle::Type::Color:
-        color(m_drawStyle.color);
+    switch (m_fillStyle.type) {
+    case FillStyle::Type::Color:
+        setColor(m_fillStyle.color);
         break;
     }
 }
+
+void Context2D::drawToStencil() {
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+}
+
+void Context2D::drawToColor() {}
+
+void Context2D::drawFill(Color color) {
+    vec2 dim = m_canvas.getDimensions();
+    setColor(color);
+    glPushMatrix();
+    glLoadIdentity();
+    // glBegin(GL_TRIANGLE_STRIP);
+    // glVertex2f(0, 0);
+    // glVertex2f(0, m_canvas.);
+    // glEnd();
+    glPopMatrix();
+}
+
+void Context2D::drawGradient(const Gradient& gradient) {}
 
 mat4& Context2D::transform() { return m_transformStack.top(); }
 
@@ -81,6 +124,7 @@ Canvas::Canvas() : m_context(*this), backgroundColor(0.0f, 0.0f, 0.0f, 1.0f) {}
 
 void Canvas::initialize() {
     glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_STENCIL_TEST);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -89,21 +133,23 @@ Context2D& Canvas::getContext2D() { return m_context; }
 
 const Context2D& Canvas::getContext2D() const { return m_context; }
 
-vec2 Canvas::scaleCanvasToNdc(float x, float y) const {
-    return vec2((2.0f / m_dimensions.x) * x, -(2.0f / m_dimensions.y) * y);
-}
+ivec2 Canvas::getDimensions() const { return m_dimensions; }
 
-vec2 Canvas::scaleNdcToCanas(float x, float y) const {
-    return ivec2((m_dimensions.x / 2.0f) * x, -(m_dimensions.y / 2.0f) * y);
-}
-
-vec2 Canvas::canvasToNdc(float x, float y) const {
-    return scaleCanvasToNdc(x, y) + vec2(-1.0f, 1.0f);
-}
-
-vec2 Canvas::ndcToCanvas(float x, float y) const {
-    return scaleNdcToCanas(x + 1.0f, y - 1.0f);
-}
+// vec2 Canvas::scaleCanvasToNdc(float x, float y) const {
+//    return vec2((2.0f / m_dimensions.x) * x, -(2.0f / m_dimensions.y) * y);
+//}
+//
+// vec2 Canvas::scaleNdcToCanas(float x, float y) const {
+//    return ivec2((m_dimensions.x / 2.0f) * x, -(m_dimensions.y / 2.0f) * y);
+//}
+//
+// vec2 Canvas::canvasToNdc(float x, float y) const {
+//    return scaleCanvasToNdc(x, y) + vec2(-1.0f, 1.0f);
+//}
+//
+// vec2 Canvas::ndcToCanvas(float x, float y) const {
+//    return scaleNdcToCanas(x + 1.0f, y - 1.0f);
+//}
 
 void Canvas::onResize(ivec2 dimensions) {
     m_dimensions = dimensions;

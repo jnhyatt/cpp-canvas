@@ -78,7 +78,7 @@ void App::setCanvasSize(const size_t width, const size_t height) {
 }
 
 void App::setBackgroundColor(const std::string& color) {
-    m_canvas.backgroundColor = parseHexColor(color);
+    m_canvas.backgroundColor = Color(color);
 }
 
 void App::requestAnimationFrame(std::function<void()> handler) {

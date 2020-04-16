@@ -25,27 +25,32 @@ public:
     void clearRect(float x, float y, float w, float h);
 
 private:
-    void setFillStyle(const DrawStyle& style);
-    void setStrokeStyle(const DrawStyle& style);
+    void setFillStyle(const FillStyle& style);
+    void setStrokeStyle(const StrokeStyle& style);
 
 public:
-    Setter<DrawStyle, Context2D, &setFillStyle> fillStyle;
-    Setter<DrawStyle, Context2D, &setStrokeStyle> strokeStyle;
+    Setter<FillStyle, Context2D, &setFillStyle> fillStyle;
+    Setter<StrokeStyle, Context2D, &setStrokeStyle> strokeStyle;
 
 private:
     template <typename T> T toDegrees(const T& t) {
         return t * static_cast<T>(3.141592653589793238) / static_cast<T>(180.0);
     }
     void vertex(vec2 v);
-    void color(vec4 c);
+    void setColor(Color c);
     void applyStyle();
+    void drawToStencil();
+    void drawToColor();
+    void drawFill(Color color);
+    void drawGradient(const Gradient& gradient);
+    // void drawPattern(const Pattern& pattern);
 
     mat4& transform();
     const mat4& transform() const;
 
 private:
-    DrawStyle m_drawStyle;
-    DrawStyle m_strokeStyle;
+    FillStyle m_fillStyle;
+    StrokeStyle m_strokeStyle;
     Canvas& m_canvas;
     std::stack<mat4> m_transformStack;
 };
@@ -59,14 +64,15 @@ public:
     Context2D& getContext2D();
     const Context2D& getContext2D() const;
 
-    vec2 scaleCanvasToNdc(float x, float y) const;
-    vec2 scaleNdcToCanas(float x, float y) const;
-    vec2 canvasToNdc(float x, float y) const;
-    vec2 ndcToCanvas(float x, float y) const;
+    ivec2 getDimensions() const;
+    // vec2 scaleCanvasToNdc(float x, float y) const;
+    // vec2 scaleNdcToCanas(float x, float y) const;
+    // vec2 canvasToNdc(float x, float y) const;
+    // vec2 ndcToCanvas(float x, float y) const;
 
     void onResize(ivec2 dimensions);
 
-    vec4 backgroundColor;
+    Color backgroundColor;
 
 private:
     Context2D m_context;
