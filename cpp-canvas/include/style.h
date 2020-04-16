@@ -21,6 +21,7 @@ public:
     Gradient();
     Gradient(vec2 origin, vec2 direction);
     void addColorStop(float position, Color color);
+    void addColorStop(float position, const std::string& color);
     Color evaluate(float position);
     Color evaluate(vec2 position);
 
@@ -41,6 +42,7 @@ public:
     FillStyle();
     FillStyle(const char* cStr);
     FillStyle(const std::string& str);
+    FillStyle(const Gradient& gradient);
 
     enum class Type {
         Color,

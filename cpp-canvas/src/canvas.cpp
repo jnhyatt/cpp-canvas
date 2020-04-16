@@ -61,6 +61,7 @@ void Context2D::fillRect(float x, float y, float w, float h) {
 }
 
 void Context2D::clearRect(float x, float y, float w, float h) {
+    glDisable(GL_STENCIL_TEST);
     setColor(m_canvas.backgroundColor);
     glBegin(GL_TRIANGLE_STRIP);
 
@@ -70,6 +71,10 @@ void Context2D::clearRect(float x, float y, float w, float h) {
     glVertex2f(x + w, y + h);
 
     glEnd();
+}
+
+Gradient Context2D::createLinearGradient(float x, float y, float dx, float dy) {
+    return Gradient(vec2(x, y), vec2(dx, dy));
 }
 
 void Context2D::setFillStyle(const FillStyle& style) { m_fillStyle = style; }
@@ -100,17 +105,23 @@ void Context2D::drawToStencil() {
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
 
-void Context2D::drawToColor() {}
+void Context2D::drawToColor() {
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_EQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+}
 
 void Context2D::drawFill(Color color) {
     vec2 dim = m_canvas.getDimensions();
     setColor(color);
     glPushMatrix();
     glLoadIdentity();
-    // glBegin(GL_TRIANGLE_STRIP);
-    // glVertex2f(0, 0);
-    // glVertex2f(0, m_canvas.);
-    // glEnd();
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex2f(0, 0);
+    glVertex2f(0, dim.y);
+    glVertex2f(dim.x, 0);
+    glVertex2f(dim.x, dim.y);
+    glEnd();
     glPopMatrix();
 }
 

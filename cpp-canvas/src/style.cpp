@@ -9,12 +9,19 @@ FillStyle::FillStyle(const char* cStr) : color(cStr), type(Type::Color) {}
 
 FillStyle::FillStyle(const std::string& str) : color(str), type(Type::Color) {}
 
+FillStyle::FillStyle(const Gradient& gradient)
+    : gradient(gradient), type(Type::Gradient) {}
+
 Gradient::Gradient() {}
 
 Gradient::Gradient(vec2 origin, vec2 direction)
     : m_origin(origin), m_direction(direction) {}
 
 void Gradient::addColorStop(float position, Color color) {
+    m_stops.emplace(position, color);
+}
+
+void Gradient::addColorStop(float position, const std::string& color) {
     m_stops.emplace(position, color);
 }
 
@@ -37,5 +44,6 @@ Color Gradient::evaluate(float stopPosition) {
 
 Color Gradient::evaluate(vec2 position) {
     vec2 intermediate = position - m_origin;
-    return Color();
+    return evaluate(dot(intermediate, normalize(m_direction)) /
+                    m_direction.length());
 }

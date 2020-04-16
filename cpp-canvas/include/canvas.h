@@ -24,6 +24,8 @@ public:
     void fillRect(float x, float y, float w, float h);
     void clearRect(float x, float y, float w, float h);
 
+    Gradient createLinearGradient(float x, float y, float dx, float dy);
+
 private:
     void setFillStyle(const FillStyle& style);
     void setStrokeStyle(const StrokeStyle& style);
@@ -65,10 +67,6 @@ public:
     const Context2D& getContext2D() const;
 
     ivec2 getDimensions() const;
-    // vec2 scaleCanvasToNdc(float x, float y) const;
-    // vec2 scaleNdcToCanas(float x, float y) const;
-    // vec2 canvasToNdc(float x, float y) const;
-    // vec2 ndcToCanvas(float x, float y) const;
 
     void onResize(ivec2 dimensions);
 
