@@ -24,7 +24,10 @@
     <ClInclude Include="include\export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\util.h">
+    <ClInclude Include="include\field.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\style.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,7 +38,7 @@
     <ClCompile Include="src\canvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\util.cpp">
+    <ClCompile Include="src\style.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -22,12 +22,13 @@
     <ClInclude Include="include\app.h" />
     <ClInclude Include="include\canvas.h" />
     <ClInclude Include="include\export.h" />
-    <ClInclude Include="include\util.h" />
+    <ClInclude Include="include\field.h" />
+    <ClInclude Include="include\style.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\canvas.cpp" />
-    <ClCompile Include="src\util.cpp" />
+    <ClCompile Include="src\style.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

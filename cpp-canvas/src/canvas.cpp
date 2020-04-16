@@ -6,7 +6,8 @@
 #include <gl/GL.h>
 
 Context2D::Context2D(Canvas& canvas)
-    : m_canvas(canvas), fillStyle(*this), m_drawStyle("#000") {
+    : m_canvas(canvas), fillStyle(*this), strokeStyle(*this),
+      m_drawStyle("#000"), m_strokeStyle("#000") {
     m_transformStack.emplace(1.0f);
 }
 
@@ -54,7 +55,11 @@ void Context2D::clearRect(float x, float y, float w, float h) {
     glEnd();
 }
 
-void Context2D::setFillStyle(const FillStyle& style) { m_drawStyle = style; }
+void Context2D::setFillStyle(const DrawStyle& style) { m_drawStyle = style; }
+
+void Context2D::setStrokeStyle(const DrawStyle& style) {
+    m_strokeStyle = style;
+}
 
 void Context2D::vertex(vec2 v) { glVertex2f(v.x, v.y); }
 
@@ -62,7 +67,7 @@ void Context2D::color(vec4 c) { glColor4f(c.r, c.g, c.b, c.a); }
 
 void Context2D::applyStyle() {
     switch (m_drawStyle.type) {
-    case FillStyle::Type::Color:
+    case DrawStyle::Type::Color:
         color(m_drawStyle.color);
         break;
     }

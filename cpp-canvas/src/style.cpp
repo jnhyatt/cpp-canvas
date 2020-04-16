@@ -1,4 +1,4 @@
-#include "util.h"
+#include "style.h"
 
 vec4 parseHexColor(const std::string& color) {
     vec4 rgba(1.0f, 1.0f, 1.0f, 1.0f);
@@ -29,12 +29,12 @@ vec4 parseHexColor(const std::string& color) {
     return rgba;
 }
 
-FillStyle::FillStyle(const char* cStr) {
+DrawStyle::DrawStyle(const char* cStr) {
     type = Type::Color;
     color = parseHexColor(cStr);
 }
 
-FillStyle::FillStyle(const std::string& str) {
+DrawStyle::DrawStyle(const std::string& str) {
     type = Type::Color;
     color = parseHexColor(str);
 }

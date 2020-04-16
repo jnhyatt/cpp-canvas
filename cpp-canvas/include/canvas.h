@@ -1,7 +1,8 @@
 #pragma once
 
 #include "export.h"
-#include "util.h"
+#include "field.h"
+#include "style.h"
 
 #include <glm/glm.hpp>
 #include <stack>
@@ -24,10 +25,12 @@ public:
     void clearRect(float x, float y, float w, float h);
 
 private:
-    void setFillStyle(const FillStyle& style);
+    void setFillStyle(const DrawStyle& style);
+    void setStrokeStyle(const DrawStyle& style);
 
 public:
-    Setter<FillStyle, Context2D, &setFillStyle> fillStyle;
+    Setter<DrawStyle, Context2D, &setFillStyle> fillStyle;
+    Setter<DrawStyle, Context2D, &setStrokeStyle> strokeStyle;
 
 private:
     template <typename T> T toDegrees(const T& t) {
@@ -41,7 +44,8 @@ private:
     const mat4& transform() const;
 
 private:
-    FillStyle m_drawStyle;
+    DrawStyle m_drawStyle;
+    DrawStyle m_strokeStyle;
     Canvas& m_canvas;
     std::stack<mat4> m_transformStack;
 };
