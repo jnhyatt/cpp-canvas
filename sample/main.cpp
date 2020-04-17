@@ -3,6 +3,12 @@
 
 #include <iostream>
 
+std::ostream& operator<<(std::ostream& lhs, const Color& rhs) {
+    vec4 rgba = rhs.asVec4();
+    return lhs << "<" << rgba.r << ", " << rgba.g << ", " << rgba.b << ", "
+               << rgba.a << ">";
+}
+
 App app;
 Context2D& ctx = app.canvas().getContext2D();
 
@@ -17,23 +23,22 @@ void draw() {
     ctx.restore();
     angle += 0.05f;
 
+    ctx.beginPath();
+    ctx.moveTo(50, 50);
+    ctx.lineTo(150, 150);
+    ctx.lineTo(250, 50);
+    ctx.stroke();
+
     app.requestAnimationFrame(draw);
 }
 
-std::ostream& operator<<(std::ostream& lhs, const Color& rhs) {
-    vec4 rgba = rhs.asVec4();
-    return lhs << "<" << rgba.r << ", " << rgba.g << ", " << rgba.b << ", "
-               << rgba.a << ">";
-}
-
 int main(int argc, char** argv) {
-    app.setCanvasSize(1280, 720);
+    app.setCanvasSize(400, 400);
     app.setBackgroundColor("#333");
 
-    auto grd = ctx.createLinearGradient(0, 0, 400, 0);
-    grd.addColorStop(0, "red");
-    grd.addColorStop(1, "green");
     ctx.fillStyle = "blue";
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 40;
 
     app.requestAnimationFrame(draw);
 

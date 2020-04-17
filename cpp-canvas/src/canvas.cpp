@@ -32,45 +32,16 @@ void Context2D::translate(float x, float y) {
 
 void Context2D::fillRect(float x, float y, float w, float h) {
     applyStyle();
-    // draw this to stencil buffer
-    drawToStencil();
-
-    // draw the rect
-    glBegin(GL_TRIANGLE_STRIP);
-
-    glVertex2f(x, y);
-    glVertex2f(x, y + h);
-    glVertex2f(x + w, y);
-    glVertex2f(x + w, y + h);
-
-    glEnd();
-
-    // then fill entire space with color/gradient/pattern
-    drawToColor();
-    switch (m_fillStyle.type) {
-    case FillStyle::Type::Color:
-        drawFill(m_fillStyle.color);
-        break;
-    case FillStyle::Type::Gradient:
-        drawGradient(m_fillStyle.gradient);
-        break;
-    case FillStyle::Type::Pattern:
-        // drawPattern(m_drawStyle.pattern);
-        break;
-    }
+    targetStencil();
+    drawRect(vec2(x, y), vec2(x + w, y + h));
+    targetColor();
+    drawFill(m_fillStyle);
 }
 
 void Context2D::clearRect(float x, float y, float w, float h) {
     glDisable(GL_STENCIL_TEST);
     setColor(m_canvas.backgroundColor);
-    glBegin(GL_TRIANGLE_STRIP);
-
-    glVertex2f(x, y);
-    glVertex2f(x, y + h);
-    glVertex2f(x + w, y);
-    glVertex2f(x + w, y + h);
-
-    glEnd();
+    drawRect(vec2(x, y), vec2(x + w, y + h));
 }
 
 Gradient Context2D::createLinearGradient(float x, float y, float dx, float dy) {
@@ -98,20 +69,51 @@ void Context2D::applyStyle() {
     }
 }
 
-void Context2D::drawToStencil() {
+void Context2D::targetStencil() {
     glClear(GL_STENCIL_BUFFER_BIT);
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
 
-void Context2D::drawToColor() {
+void Context2D::targetColor() {
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_EQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
 }
 
-void Context2D::drawFill(Color color) {
+void Context2D::drawRect(vec2 a, vec2 b) {
+    glBegin(GL_TRIANGLE_STRIP);
+
+    glVertex2f(a.x, a.y);
+    glVertex2f(a.x, b.y);
+    glVertex2f(b.x, a.y);
+    glVertex2f(b.x, b.y);
+
+    glEnd();
+}
+
+void Context2D::drawPath(const Path& path) {
+    // TODO Deal with line caps
+    for (const auto& pSeg: path.segments) {
+    }
+}
+
+void Context2D::drawFill(const FillStyle& style) {
+    switch (style.type) {
+    case FillStyle::Type::Color:
+        fillWithColor(style.color);
+        break;
+    case FillStyle::Type::Gradient:
+        fillWithGradient(style.gradient);
+        break;
+    case FillStyle::Type::Pattern:
+        // fillWithPattern(m_drawStyle.pattern);
+        break;
+    }
+}
+
+void Context2D::fillWithColor(const Color& color) {
     vec2 dim = m_canvas.getDimensions();
     setColor(color);
     glPushMatrix();
@@ -125,7 +127,7 @@ void Context2D::drawFill(Color color) {
     glPopMatrix();
 }
 
-void Context2D::drawGradient(const Gradient& gradient) {}
+void Context2D::fillWithGradient(const Gradient& gradient) {}
 
 mat4& Context2D::transform() { return m_transformStack.top(); }
 

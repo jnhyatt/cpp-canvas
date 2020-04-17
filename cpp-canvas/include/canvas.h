@@ -2,6 +2,7 @@
 
 #include "export.h"
 #include "field.h"
+#include "path.h"
 #include "style.h"
 
 #include <glm/glm.hpp>
@@ -33,18 +34,23 @@ private:
 public:
     Setter<FillStyle, Context2D, &setFillStyle> fillStyle;
     Setter<StrokeStyle, Context2D, &setStrokeStyle> strokeStyle;
+    float lineWidth;
 
 private:
-    template <typename T> T toDegrees(const T& t) {
-        return t * static_cast<T>(3.141592653589793238) / static_cast<T>(180.0);
-    }
     void vertex(vec2 v);
     void setColor(Color c);
     void applyStyle();
-    void drawToStencil();
-    void drawToColor();
-    void drawFill(Color color);
-    void drawGradient(const Gradient& gradient);
+    void targetStencil();
+    void targetColor();
+
+    // Draw shapes to stencil buffer
+    void drawRect(vec2 a, vec2 b);
+    void drawPath(const Path& path);
+
+    // Draw styles to color buffer
+    void drawFill(const FillStyle& style);
+    void fillWithColor(const Color& color);
+    void fillWithGradient(const Gradient& gradient);
     // void drawPattern(const Pattern& pattern);
 
     mat4& transform();
@@ -53,6 +59,7 @@ private:
 private:
     FillStyle m_fillStyle;
     StrokeStyle m_strokeStyle;
+    Path m_path;
     Canvas& m_canvas;
     std::stack<mat4> m_transformStack;
 };
