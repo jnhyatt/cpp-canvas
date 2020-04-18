@@ -35,7 +35,7 @@ public:
     void removeDoubles(const float epsilon);
 
 public:
-    std::vector<LineSegment> lines;
+    std::vector<vec2> points;
 };
 
 class PathSegment {
@@ -79,7 +79,7 @@ private:
 
 class Path {
 public:
-    Path() = default;
+    Path();
     Path(const Path&) = delete;
 
     Path& operator=(const Path&) = delete;
@@ -91,6 +91,8 @@ public:
     void reset();
 
     Mesh toMesh(const float resolution) const;
+
+    bool closed;
 
 public:
     std::vector<std::unique_ptr<PathSegment>> segments;

@@ -3,7 +3,9 @@
 PathLine::PathLine(const vec2 start, const vec2 end)
     : m_start(start), m_end(end) {}
 
-vec2 PathLine::f(const float x) const { return m_start + (x * m_end); }
+vec2 PathLine::f(const float x) const {
+    return m_start + (x * (m_end - m_start));
+}
 
 vec2 PathLine::slope(const float x) const { return normalize(m_end - m_start); }
 
@@ -13,9 +15,18 @@ float PathLine::length() const {
 
 float PathLine::resolutionFactor() const { return 0.0f; }
 
+Path::Path() : closed(false) {}
+
 void Path::reset() { segments.clear(); }
 
-Mesh Path::toMesh(const float resolution) const { return Mesh(); }
+Mesh Path::toMesh(const float resolution) const {
+    Mesh mesh;
+    for (const auto& segment: segments) {
+        mesh.points.push_back(segment->f(0.0f));
+    }
+    mesh.points.push_back(segments.back()->f(1.0f));
+    return mesh;
+}
 
 Triangle::Triangle(const vec2 a, const vec2 b, const vec2 c)
     : a(a), b(b), c(c) {}
@@ -25,9 +36,9 @@ void Mesh::removeDoubles(const float epsilon) {}
 std::vector<Triangle> triangulate(Mesh mesh) {
     mesh.removeDoubles(0.0001f); // TODO Figure out a good epsilon based on size
     std::vector<Triangle> triangles;
-    while (mesh.lines.size() > 3) {
-        triangles.push_back(clipEar(mesh));
-    }
+    // while (mesh.lines.size() > 3) {
+    //    triangles.push_back(clipEar(mesh));
+    //}
     return triangles;
 }
 
