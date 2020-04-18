@@ -24,14 +24,14 @@
     <ClInclude Include="include\color.h" />
     <ClInclude Include="include\export.h" />
     <ClInclude Include="include\field.h" />
-    <ClInclude Include="include\path.h" />
+    <ClInclude Include="include\geometry.h" />
     <ClInclude Include="include\style.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\canvas.cpp" />
     <ClCompile Include="src\color.cpp" />
-    <ClCompile Include="src\path.cpp" />
+    <ClCompile Include="src\geometry.cpp" />
     <ClCompile Include="src\style.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

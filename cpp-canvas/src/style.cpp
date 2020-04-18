@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <unordered_map>
 
-FillStyle::FillStyle() : type(Type::Color) {}
+DrawStyle::DrawStyle() : type(Type::Color) {}
 
-FillStyle::FillStyle(const char* cStr) : color(cStr), type(Type::Color) {}
+DrawStyle::DrawStyle(const char* cStr) : color(cStr), type(Type::Color) {}
 
-FillStyle::FillStyle(const std::string& str) : color(str), type(Type::Color) {}
+DrawStyle::DrawStyle(const std::string& str) : color(str), type(Type::Color) {}
 
-FillStyle::FillStyle(const Gradient& gradient)
+DrawStyle::DrawStyle(const Gradient& gradient)
     : gradient(gradient), type(Type::Gradient) {}
 
 Gradient::Gradient() {}

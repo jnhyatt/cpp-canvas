@@ -37,12 +37,12 @@ enum class LineCap {
     Square,
 };
 
-class CPP_CANVAS_API FillStyle {
+class CPP_CANVAS_API DrawStyle {
 public:
-    FillStyle();
-    FillStyle(const char* cStr);
-    FillStyle(const std::string& str);
-    FillStyle(const Gradient& gradient);
+    DrawStyle();
+    DrawStyle(const char* cStr);
+    DrawStyle(const std::string& str);
+    DrawStyle(const Gradient& gradient);
 
     enum class Type {
         Color,
@@ -55,5 +55,3 @@ public:
     Gradient gradient;
     // Pattern pattern;
 };
-
-class CPP_CANVAS_API StrokeStyle {};

@@ -33,7 +33,7 @@
     <ClInclude Include="include\color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\path.h">
+    <ClInclude Include="include\geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,7 +50,7 @@
     <ClCompile Include="src\color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\path.cpp">
+    <ClCompile Include="src\geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

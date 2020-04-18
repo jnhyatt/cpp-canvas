@@ -2,7 +2,7 @@
 
 #include "export.h"
 #include "field.h"
-#include "path.h"
+#include "geometry.h"
 #include "style.h"
 
 #include <glm/glm.hpp>
@@ -25,30 +25,38 @@ public:
     void fillRect(float x, float y, float w, float h);
     void clearRect(float x, float y, float w, float h);
 
+    void beginPath();
+    void moveTo(float x, float y);
+    void lineTo(float x, float y);
+    void closePath();
+
+    void stroke();
+    void fill();
+
     Gradient createLinearGradient(float x, float y, float dx, float dy);
 
 private:
-    void setFillStyle(const FillStyle& style);
-    void setStrokeStyle(const StrokeStyle& style);
+    void setFillStyle(const DrawStyle& style);
+    void setStrokeStyle(const DrawStyle& style);
 
 public:
-    Setter<FillStyle, Context2D, &setFillStyle> fillStyle;
-    Setter<StrokeStyle, Context2D, &setStrokeStyle> strokeStyle;
+    Setter<DrawStyle, Context2D, &setFillStyle> fillStyle;
+    Setter<DrawStyle, Context2D, &setStrokeStyle> strokeStyle;
     float lineWidth;
 
 private:
     void vertex(vec2 v);
     void setColor(Color c);
-    void applyStyle();
     void targetStencil();
     void targetColor();
 
     // Draw shapes to stencil buffer
     void drawRect(vec2 a, vec2 b);
+    void drawTriangle(const Triangle& triangle);
     void drawPath(const Path& path);
 
     // Draw styles to color buffer
-    void drawFill(const FillStyle& style);
+    void drawFill(const DrawStyle& style);
     void fillWithColor(const Color& color);
     void fillWithGradient(const Gradient& gradient);
     // void drawPattern(const Pattern& pattern);
@@ -57,9 +65,12 @@ private:
     const mat4& transform() const;
 
 private:
-    FillStyle m_fillStyle;
-    StrokeStyle m_strokeStyle;
+    DrawStyle m_fillStyle;
+    DrawStyle m_strokeStyle;
     Path m_path;
+    vec2 m_pathOrigin;
+    bool m_penValid;
+    vec2 m_pen;
     Canvas& m_canvas;
     std::stack<mat4> m_transformStack;
 };

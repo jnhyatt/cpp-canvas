@@ -6,7 +6,8 @@
 #include <gl/GL.h>
 
 Context2D::Context2D(Canvas& canvas)
-    : m_canvas(canvas), fillStyle(*this), strokeStyle(*this) {
+    : m_canvas(canvas), fillStyle(*this), strokeStyle(*this),
+      m_penValid(false) {
     m_transformStack.emplace(1.0f);
 }
 
@@ -31,7 +32,6 @@ void Context2D::translate(float x, float y) {
 }
 
 void Context2D::fillRect(float x, float y, float w, float h) {
-    applyStyle();
     targetStencil();
     drawRect(vec2(x, y), vec2(x + w, y + h));
     targetColor();
@@ -44,13 +44,51 @@ void Context2D::clearRect(float x, float y, float w, float h) {
     drawRect(vec2(x, y), vec2(x + w, y + h));
 }
 
+void Context2D::beginPath() {
+    m_penValid = false;
+    m_path.reset();
+}
+
+void Context2D::moveTo(float x, float y) {
+    m_pen = vec2(x, y);
+    if (!m_penValid) {
+        m_pathOrigin = m_pen;
+    }
+    m_penValid = true;
+}
+
+void Context2D::lineTo(float x, float y) {
+    if (!m_penValid) {
+        m_path.addSegment<PathLine>(vec2(m_pen.x, m_pen.y), vec2(x, y));
+    }
+    moveTo(x, y);
+}
+
+void Context2D::stroke() {
+    targetStencil();
+    drawPath(m_path);
+    targetColor();
+    drawFill(m_strokeStyle);
+}
+
+void Context2D::fill() {
+    targetStencil();
+    // TODO Avoid hardcoding resolution
+    std::vector<Triangle> triangles = triangulate(m_path.toMesh(10.0f));
+    for (const Triangle& triangle: triangles) {
+        drawTriangle(triangle);
+    }
+    targetColor();
+    drawFill(m_fillStyle);
+}
+
 Gradient Context2D::createLinearGradient(float x, float y, float dx, float dy) {
     return Gradient(vec2(x, y), vec2(dx, dy));
 }
 
-void Context2D::setFillStyle(const FillStyle& style) { m_fillStyle = style; }
+void Context2D::setFillStyle(const DrawStyle& style) { m_fillStyle = style; }
 
-void Context2D::setStrokeStyle(const StrokeStyle& style) {
+void Context2D::setStrokeStyle(const DrawStyle& style) {
     m_strokeStyle = style;
 }
 
@@ -59,14 +97,6 @@ void Context2D::vertex(vec2 v) { glVertex2f(v.x, v.y); }
 void Context2D::setColor(Color c) {
     vec4 rgba = c.asVec4();
     glColor4f(rgba.r, rgba.g, rgba.b, rgba.a);
-}
-
-void Context2D::applyStyle() {
-    switch (m_fillStyle.type) {
-    case FillStyle::Type::Color:
-        setColor(m_fillStyle.color);
-        break;
-    }
 }
 
 void Context2D::targetStencil() {
@@ -93,21 +123,31 @@ void Context2D::drawRect(vec2 a, vec2 b) {
     glEnd();
 }
 
-void Context2D::drawPath(const Path& path) {
-    // TODO Deal with line caps
-    for (const auto& pSeg: path.segments) {
-    }
+void Context2D::drawTriangle(const Triangle& triangle) {
+    glBegin(GL_TRIANGLES);
+
+    vertex(triangle.a);
+    vertex(triangle.b);
+    vertex(triangle.c);
+
+    glEnd();
 }
 
-void Context2D::drawFill(const FillStyle& style) {
+void Context2D::drawPath(const Path& path) {
+    // TODO Deal with line caps
+    // TODO Avoid hardcoding resolution
+    Mesh mesh = path.toMesh(10.0f);
+}
+
+void Context2D::drawFill(const DrawStyle& style) {
     switch (style.type) {
-    case FillStyle::Type::Color:
+    case DrawStyle::Type::Color:
         fillWithColor(style.color);
         break;
-    case FillStyle::Type::Gradient:
+    case DrawStyle::Type::Gradient:
         fillWithGradient(style.gradient);
         break;
-    case FillStyle::Type::Pattern:
+    case DrawStyle::Type::Pattern:
         // fillWithPattern(m_drawStyle.pattern);
         break;
     }
