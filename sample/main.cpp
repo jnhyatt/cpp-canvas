@@ -3,12 +3,6 @@
 
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& lhs, const Color& rhs) {
-    vec4 rgba = rhs.asVec4();
-    return lhs << "<" << rgba.r << ", " << rgba.g << ", " << rgba.b << ", "
-               << rgba.a << ">";
-}
-
 App app;
 Context2D& ctx = app.canvas().getContext2D();
 
