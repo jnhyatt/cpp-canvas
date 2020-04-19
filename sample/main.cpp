@@ -1,7 +1,9 @@
-#include "app.h"
-#include "canvas.h"
+#include "cpp-canvas/app.h"
+#include "cpp-canvas/canvas.h"
 
 #include <iostream>
+
+using namespace canvas;
 
 App app;
 Context2D& ctx = app.canvas().getContext2D();

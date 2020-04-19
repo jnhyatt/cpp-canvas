@@ -19,20 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\app.h" />
-    <ClInclude Include="include\canvas.h" />
-    <ClInclude Include="include\color.h" />
-    <ClInclude Include="include\export.h" />
-    <ClInclude Include="include\field.h" />
-    <ClInclude Include="include\geometry.h" />
-    <ClInclude Include="include\style.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="src\app.cpp" />
     <ClCompile Include="src\canvas.cpp" />
     <ClCompile Include="src\color.cpp" />
+    <ClCompile Include="src\context.cpp" />
     <ClCompile Include="src\geometry.cpp" />
     <ClCompile Include="src\style.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\cpp-canvas\app.h" />
+    <ClInclude Include="include\cpp-canvas\canvas.h" />
+    <ClInclude Include="include\cpp-canvas\color.h" />
+    <ClInclude Include="include\cpp-canvas\context.h" />
+    <ClInclude Include="include\cpp-canvas\export.h" />
+    <ClInclude Include="include\cpp-canvas\field.h" />
+    <ClInclude Include="include\cpp-canvas\geometry.h" />
+    <ClInclude Include="include\cpp-canvas\style.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
