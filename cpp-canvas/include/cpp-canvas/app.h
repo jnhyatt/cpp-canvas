@@ -10,39 +10,6 @@
 #include <Windows.h>
 
 namespace canvas {
-    class App;
-
-    class MouseEvent {
-    public:
-        MouseEvent(const App& app);
-
-    private:
-        float getOffsetX();
-        float getOffsetY();
-        float getDeltaX();
-        float getDeltaY();
-        float getScreenX();
-        float getScreenY();
-
-    public:
-        Getter<float, MouseEvent, &getOffsetX> offsetX;
-        Getter<float, MouseEvent, &getOffsetY> offsetY;
-        Getter<float, MouseEvent, &getOffsetX> clientX;
-        Getter<float, MouseEvent, &getOffsetY> clientY;
-        Getter<float, MouseEvent, &getOffsetX> pageX;
-        Getter<float, MouseEvent, &getOffsetY> pageY;
-        Getter<float, MouseEvent, &getDeltaX> movementX;
-        Getter<float, MouseEvent, &getDeltaY> movementY;
-        Getter<float, MouseEvent, &getScreenX> screenX;
-        Getter<float, MouseEvent, &getScreenY> screenY;
-
-    private:
-        char keys[256];
-        vec2 m_lastCursor;
-        vec2 m_cursor;
-        vec2 m_windowOrigin;
-    };
-
     class CPP_CANVAS_API App {
     public:
         App();
@@ -68,4 +35,6 @@ namespace canvas {
         std::function<void()> m_animationHandler;
         bool m_running;
     };
+
+    App* pApp = nullptr;
 } // namespace canvas

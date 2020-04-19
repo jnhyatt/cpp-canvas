@@ -4,23 +4,6 @@
 #include <sstream>
 
 namespace canvas {
-    MouseEvent::MouseEvent(const App& app)
-        : offsetX(*this), offsetY(*this), clientX(*this), clientY(*this),
-          pageX(*this), pageY(*this), movementX(*this), movementY(*this),
-          screenX(*this), screenY(*this) {}
-
-    float MouseEvent::getOffsetX() { return m_cursor.x - m_windowOrigin.x; }
-
-    float MouseEvent::getOffsetY() { return m_cursor.y - m_windowOrigin.y; }
-
-    float MouseEvent::getDeltaX() { return m_cursor.x - m_lastCursor.x; }
-
-    float MouseEvent::getDeltaY() { return m_cursor.y - m_lastCursor.y; }
-
-    float MouseEvent::getScreenX() { return m_cursor.x; }
-
-    float MouseEvent::getScreenY() { return m_cursor.y; }
-
     App::App()
         : m_hDeviceContext(NULL), m_hRenderingContext(NULL),
           m_hInstance(GetModuleHandle(NULL)), m_hWindow(NULL),
@@ -82,9 +65,11 @@ namespace canvas {
         m_hRenderingContext = wglCreateContext(m_hDeviceContext);
         wglMakeCurrent(m_hDeviceContext, m_hRenderingContext);
 
-        m_canvas.initialize();
+        m_canvas.onInitialize();
 
         ShowWindow(m_hWindow, SW_SHOWDEFAULT);
+
+        pApp = this;
     }
 
     App::~App() {}
@@ -92,7 +77,6 @@ namespace canvas {
     void App::setCanvasSize(const size_t width, const size_t height) {
         SetWindowPos(m_hWindow, NULL, 0, 0, width, height,
                      SWP_NOMOVE | SWP_NOZORDER);
-        m_canvas.onResize(ivec2(width, height));
     }
 
     void App::setBackgroundColor(const std::string& color) {
@@ -127,10 +111,44 @@ namespace canvas {
 
     LRESULT CALLBACK App::eventCallback(HWND hWindow, UINT message,
                                         WPARAM wParam, LPARAM lParam) {
-        switch (message) {
-        case WM_CLOSE:
-            PostQuitMessage(0);
-            return 0;
+        if (pApp) {
+            switch (message) {
+            case WM_CLOSE:
+                PostQuitMessage(0);
+                return 0;
+            case WM_MOVE:
+                pApp->canvas().onResize(ivec2((int)(short)LOWORD(lParam),
+                                              (int)(short)HIWORD(lParam)),
+                                        pApp->canvas().getDimensions());
+                return 0;
+            case WM_SIZE:
+                pApp->canvas().onResize(pApp->canvas().getWindowOrigin(),
+                                        ivec2((int)(short)LOWORD(lParam),
+                                              (int)(short)HIWORD(lParam)));
+                return 0;
+            case WM_MOUSEMOVE:
+                pApp->canvas().onMouseMove(ivec2((int)(short)LOWORD(lParam),
+                                                 (int)(short)HIWORD(lParam)));
+                return 0;
+            case WM_LBUTTONDOWN:
+                pApp->canvas().onMouseDown(0);
+                return 0;
+            case WM_MBUTTONDOWN:
+                pApp->canvas().onMouseDown(1);
+                return 0;
+            case WM_RBUTTONDOWN:
+                pApp->canvas().onMouseDown(2);
+                return 0;
+            case WM_LBUTTONUP:
+                pApp->canvas().onMouseUp(0);
+                return 0;
+            case WM_MBUTTONUP:
+                pApp->canvas().onMouseUp(1);
+                return 0;
+            case WM_RBUTTONUP:
+                pApp->canvas().onMouseUp(2);
+                return 0;
+            }
         }
 
         return DefWindowProc(hWindow, message, wParam, lParam);

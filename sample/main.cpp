@@ -6,25 +6,26 @@
 using namespace canvas;
 
 App app;
-Context2D& ctx = app.canvas().getContext2D();
+Canvas& c = app.canvas();
+Context2D& ctx = c.getContext2D();
 
-float angle = 0.0f;
+int x = 0;
+int y = 0;
+
+std::unordered_map<int, std::string> colors = {
+    {0, "red"},
+    {1, "green"},
+    {2, "blue"},
+    {3, "yellow"},
+};
 
 void draw() {
     ctx.clearRect(0, 0, 400, 400);
 
-    ctx.beginPath();
-    ctx.moveTo(200, 200);
-    ctx.lineTo(200 + 100 * cos(angle), 200 + 100 * sin(angle));
-    ctx.lineTo(200, 200 + 200 * sin(angle));
-    ctx.stroke();
-
     ctx.save();
-    ctx.translate(200 + 100 * cos(angle), 200 + 100 * sin(angle));
-    ctx.fillRect(-2, -2, 4, 4);
+    ctx.fillRect(20, 20, 100, 100);
+    ctx.fillRect(x - 20, y - 20, 40, 40);
     ctx.restore();
-
-    angle += 0.01f;
 
     app.requestAnimationFrame(draw);
 }
@@ -33,9 +34,13 @@ int main(int argc, char** argv) {
     app.setCanvasSize(400, 400);
     app.setBackgroundColor("#333");
 
-    ctx.fillStyle = "#0f0";
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 8;
+    ctx.fillStyle = "blue";
+    ctx.fillStyle = "blue";
+    c.addEventListener("mousemove", [](const MouseEvent& ev) {
+        x = ev.offsetX;
+        y = ev.offsetY;
+        ctx.fillStyle = colors[ev.which];
+    });
 
     app.requestAnimationFrame(draw);
 
