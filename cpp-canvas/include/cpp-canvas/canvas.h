@@ -15,7 +15,20 @@
 using namespace glm;
 
 namespace canvas {
-    class MouseEvent;
+    class CPP_CANVAS_API KeyboardEvent {
+    public:
+        KeyboardEvent(const Canvas& canvas, const std::string& eventType);
+
+    private:
+        std::string keyString();
+
+    public:
+        Getter<std::string, KeyboardEvent, &keyString> key;
+
+    private:
+        const Canvas& m_canvas;
+        std::string m_eventType;
+    };
 
     class CPP_CANVAS_API MouseEvent {
     public:
@@ -56,6 +69,7 @@ namespace canvas {
     public:
         typedef std::function<void()> Handler;
         typedef std::function<void(const MouseEvent&)> MouseHandler;
+        typedef std::function<void(const KeyboardEvent&)> KeyHandler;
 
         Canvas();
 
@@ -65,18 +79,24 @@ namespace canvas {
         ivec2 cursorPosition() const;
         ivec2 lastCursorPosition() const;
         int lastMouseButton() const;
+        int lastKey() const;
         bool mouseButtonDown(const int button) const;
+        bool keyDown(const int key) const;
+        bool isCapital() const;
         ivec2 getWindowOrigin() const;
         ivec2 getDimensions() const;
 
         void addEventListener(const std::string& type, Handler handler);
         void addEventListener(const std::string& type, MouseHandler handler);
+        void addEventListener(const std::string& type, KeyHandler handler);
 
         void onInitialize();
         void onResize(const ivec2 position, const ivec2 dimensions);
         void onMouseMove(const ivec2 cursor);
         void onMouseDown(const int button);
         void onMouseUp(const int button);
+        void onKeyDown(const int key);
+        void onKeyUp(const int key);
 
         Color backgroundColor;
 
@@ -92,6 +112,7 @@ namespace canvas {
 
         std::unordered_map<std::string, std::vector<MouseHandler>>
             m_mouseHandlers;
+        std::unordered_map<std::string, std::vector<KeyHandler>> m_keyHandlers;
 
         Context2D m_context;
     };

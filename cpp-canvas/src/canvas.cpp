@@ -7,6 +7,44 @@
 #include <gl/GL.h>
 
 namespace canvas {
+    KeyboardEvent::KeyboardEvent(const Canvas& canvas,
+                                 const std::string& eventType)
+        : key(*this), m_canvas(canvas), m_eventType(eventType) {}
+
+    std::string KeyboardEvent::keyString() {
+        int key = m_canvas.lastKey();
+        if (key >= '0' && key <= '9') {
+            return std::string(1, key);
+        }
+        if (key >= 'A' && key <= 'Z') {
+            return std::string(1, m_canvas.isCapital() ? key : tolower(key));
+        }
+        if (m_canvas.keyDown(VK_LSHIFT) || m_canvas.keyDown(VK_RSHIFT)) {
+            switch (key) {
+            case VK_OEM_PERIOD:
+                return ">";
+            case VK_OEM_COMMA:
+                return "<";
+            case VK_OEM_1:
+                return ":";
+            case VK_OEM_MINUS:
+                return "_";
+            }
+        } else {
+            switch (key) {
+            case VK_OEM_PERIOD:
+                return ".";
+            case VK_OEM_COMMA:
+                return ",";
+            case VK_OEM_1:
+                return ";";
+            case VK_OEM_MINUS:
+                return "-";
+            }
+        }
+        return "<error-undefined>";
+    }
+
     MouseEvent::MouseEvent(const Canvas& canvas, const std::string& eventType)
         : offsetX(*this), offsetY(*this), clientX(*this), clientY(*this),
           pageX(*this), pageY(*this), movementX(*this), movementY(*this),
@@ -80,9 +118,15 @@ namespace canvas {
 
     int Canvas::lastMouseButton() const { return m_lastMouseButton; }
 
-    bool Canvas::mouseButtonDown(const int index) const {
-        return m_mouseButtons[index];
+    int Canvas::lastKey() const { return m_lastKey; }
+
+    bool Canvas::mouseButtonDown(const int button) const {
+        return m_mouseButtons[button];
     }
+
+    bool Canvas::keyDown(const int key) const { return m_keys[key]; }
+
+    bool Canvas::isCapital() const { return false; /* TODO */ }
 
     ivec2 Canvas::getWindowOrigin() const { return m_windowOrigin; }
 
@@ -131,12 +175,36 @@ namespace canvas {
         }
     }
 
+    void Canvas::onKeyDown(const int key) {
+        m_keys[key] = true;
+        m_lastKey = key;
+        for (const KeyHandler& handler: m_keyHandlers["keydown"]) {
+            handler(KeyboardEvent(*this, "keydown"));
+        }
+    }
+
+    void Canvas::onKeyUp(const int key) {
+        m_keys[key] = false;
+        m_lastKey = key;
+        for (const KeyHandler& handler: m_keyHandlers["keyup"]) {
+            handler(KeyboardEvent(*this, "keyup"));
+        }
+    }
+
     void Canvas::addEventListener(const std::string& type, Handler handler) {
-        addEventListener(type, [handler](const MouseEvent&) { handler(); });
+        if (m_mouseHandlers.count(type) > 0) {
+            addEventListener(type, [=](const MouseEvent&) { handler(); });
+        } else if (m_keyHandlers.count(type) > 0) {
+            addEventListener(type, [=](const KeyboardEvent&) { handler(); });
+        }
     }
 
     void Canvas::addEventListener(const std::string& type,
                                   MouseHandler handler) {
         m_mouseHandlers[type].push_back(std::move(handler));
+    }
+
+    void Canvas::addEventListener(const std::string& type, KeyHandler handler) {
+        m_keyHandlers[type].push_back(std::move(handler));
     }
 } // namespace canvas

@@ -20,6 +20,9 @@ namespace canvas {
     public:
         Getter(U& parent) : m_parent(parent) {}
         operator T() const { return (m_parent.*getter)(); }
+        template <typename U> bool operator==(const U& rhs) const {
+            return static_cast<const T>(*this) == rhs;
+        }
 
     private:
         U& m_parent;

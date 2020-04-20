@@ -148,6 +148,11 @@ namespace canvas {
             case WM_RBUTTONUP:
                 pApp->canvas().onMouseUp(2);
                 return 0;
+            case WM_KEYDOWN:
+                pApp->canvas().onKeyDown(wParam);
+                return 0;
+            case WM_KEYUP:
+                pApp->canvas().onKeyUp(wParam);
             }
         }
 

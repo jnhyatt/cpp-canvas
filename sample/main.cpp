@@ -12,12 +12,9 @@ Context2D& ctx = c.getContext2D();
 int x = 0;
 int y = 0;
 
-std::unordered_map<int, std::string> colors = {
-    {0, "red"},
-    {1, "green"},
-    {2, "blue"},
-    {3, "yellow"},
-};
+std::unordered_map<std::string, std::string> colors = {
+    {"", "white"},   {"0", "red"},    {"1", "green"},
+    {"2", "purple"}, {"3", "yellow"}, {"w", "aqua"}};
 
 void draw() {
     ctx.clearRect(0, 0, 400, 400);
@@ -35,11 +32,17 @@ int main(int argc, char** argv) {
     app.setBackgroundColor("#333");
 
     ctx.fillStyle = "blue";
-    ctx.fillStyle = "blue";
-    c.addEventListener("mousemove", [](const MouseEvent& ev) {
-        x = ev.offsetX;
-        y = ev.offsetY;
-        ctx.fillStyle = colors[ev.which];
+    c.addEventListener("keydown", [](const KeyboardEvent& ev) {
+        // x = ev.offsetX;
+        // y = ev.offsetY;
+        // ctx.fillStyle = colors[ev.which];
+        ctx.fillStyle = colors[ev.key];
+    });
+    c.addEventListener("keyup", [](const KeyboardEvent& ev) {
+        // x = ev.offsetX;
+        // y = ev.offsetY;
+        // ctx.fillStyle = colors[ev.which];
+        ctx.fillStyle = "blue";
     });
 
     app.requestAnimationFrame(draw);
