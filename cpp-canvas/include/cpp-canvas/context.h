@@ -16,15 +16,18 @@ namespace canvas {
 
         void save();
         void restore();
-        void rotate(float angle);
-        void translate(float x, float y);
+        void rotate(const float angle);
+        void translate(const float x, const float y);
 
-        void fillRect(float x, float y, float w, float h);
-        void clearRect(float x, float y, float w, float h);
+        void fillText(const std::string& text, const float x, const float y);
+        void fillRect(const float x, const float y, const float w,
+                      const float h);
+        void clearRect(const float x, const float y, const float w,
+                       const float h);
 
         void beginPath();
-        void moveTo(float x, float y);
-        void lineTo(float x, float y);
+        void moveTo(const float x, const float y);
+        void lineTo(const float x, const float y);
         void closePath();
 
         void stroke();
@@ -40,6 +43,7 @@ namespace canvas {
         Setter<DrawStyle, Context2D, &setFillStyle> fillStyle;
         Setter<DrawStyle, Context2D, &setStrokeStyle> strokeStyle;
         float lineWidth;
+        float fontSize;
 
     private:
         void vertex(vec2 v);
@@ -51,6 +55,7 @@ namespace canvas {
         void drawRect(vec2 a, vec2 b);
         void drawTriangle(const Triangle& triangle);
         void drawPath(const Path& path);
+        void drawText(const std::string& text);
 
         // Draw styles to color buffer
         void drawFill(const DrawStyle& style);
@@ -70,5 +75,6 @@ namespace canvas {
         vec2 m_pen;
         Canvas& m_canvas;
         std::stack<mat4> m_transformStack;
+        uint8_t m_vertexBuffer[131072];
     };
 } // namespace canvas

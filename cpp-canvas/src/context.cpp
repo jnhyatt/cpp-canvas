@@ -6,11 +6,12 @@
 #include <gl/GL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <stb_easy_font.h>
 
 namespace canvas {
     Context2D::Context2D(Canvas& canvas)
         : m_canvas(canvas), fillStyle(*this), strokeStyle(*this),
-          m_penValid(false) {
+          m_penValid(false), fontSize(5.0f) {
         m_transformStack.emplace(1.0f);
     }
 
@@ -24,24 +25,34 @@ namespace canvas {
         glLoadMatrixf(glm::value_ptr(transform()));
     }
 
-    void Context2D::rotate(float angle) {
+    void Context2D::rotate(const float angle) {
         transform() = glm::rotate(transform(), angle, vec3(0.0f, 0.0f, 1.0f));
         glLoadMatrixf(glm::value_ptr(transform()));
     }
 
-    void Context2D::translate(float x, float y) {
+    void Context2D::translate(const float x, const float y) {
         transform() = glm::translate(transform(), vec3(x, y, 0.0f));
         glLoadMatrixf(glm::value_ptr(transform()));
     }
 
-    void Context2D::fillRect(float x, float y, float w, float h) {
+    void Context2D::fillText(const std::string& text, const float x,
+                             const float y) {
+        targetStencil();
+        drawText(text);
+        targetColor();
+        drawFill(m_fillStyle);
+    }
+
+    void Context2D::fillRect(const float x, const float y, const float w,
+                             const float h) {
         targetStencil();
         drawRect(vec2(x, y), vec2(x + w, y + h));
         targetColor();
         drawFill(m_fillStyle);
     }
 
-    void Context2D::clearRect(float x, float y, float w, float h) {
+    void Context2D::clearRect(const float x, const float y, const float w,
+                              const float h) {
         glDisable(GL_STENCIL_TEST);
         setColor(m_canvas.backgroundColor);
         drawRect(vec2(x, y), vec2(x + w, y + h));
@@ -53,7 +64,7 @@ namespace canvas {
         m_path.reset();
     }
 
-    void Context2D::moveTo(float x, float y) {
+    void Context2D::moveTo(const float x, const float y) {
         m_pen = vec2(x, y);
         if (!m_penValid) {
             m_pathOrigin = m_pen;
@@ -61,7 +72,7 @@ namespace canvas {
         m_penValid = true;
     }
 
-    void Context2D::lineTo(float x, float y) {
+    void Context2D::lineTo(const float x, const float y) {
         if (m_penValid) {
             m_path.addSegment<PathLine>(vec2(m_pen.x, m_pen.y), vec2(x, y));
         }
@@ -225,6 +236,25 @@ namespace canvas {
 
             glEnd();
         }
+    }
+
+    void Context2D::drawText(const std::string& text) {
+        char helloWorld[14] = "Hello, world!";
+        size_t quadCount =
+            stb_easy_font_print(0.0f, 0.0f, helloWorld, nullptr, m_vertexBuffer,
+                                sizeof(m_vertexBuffer));
+        size_t stride = sizeof(float) * 3 + sizeof(uint8_t) * 4;
+        glPushMatrix();
+        glScalef(fontSize, fontSize, 1.0f);
+        glBegin(GL_QUADS);
+        for (size_t i = 0; i < 4 * quadCount * stride; i += 4 * stride) {
+            for (size_t j = 0; j < 4 * stride; j += stride) {
+                glVertex2f(reinterpret_cast<float*>(m_vertexBuffer + i + j)[0],
+                           reinterpret_cast<float*>(m_vertexBuffer + i + j)[1]);
+            }
+        }
+        glEnd();
+        glPopMatrix();
     }
 
     void Context2D::drawFill(const DrawStyle& style) {

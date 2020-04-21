@@ -18,12 +18,11 @@ std::unordered_map<std::string, std::string> colors = {
 
 void draw() {
     ctx.clearRect(0, 0, 400, 400);
-
     ctx.save();
-    ctx.fillRect(20, 20, 100, 100);
-    ctx.fillRect(x - 20, y - 20, 40, 40);
-    ctx.restore();
 
+    ctx.fillText("Hello, world!", 20, 20);
+
+    ctx.restore();
     app.requestAnimationFrame(draw);
 }
 
